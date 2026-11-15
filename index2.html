@@ -1,0 +1,767 @@
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zacklax</title>
+
+<style>
+:root {
+  --purple:#6847ed; --light:#f3f0ff; --bg:#f7f7fb;
+  --text:#202033; --muted:#77778a; --line:#e9e9f0; --white:#fff;
+}
+* { box-sizing:border-box }
+body { margin:0; background:var(--bg); color:var(--text); font:15px/1.45 system-ui,sans-serif }
+button,input,textarea { font:inherit }
+button { cursor:pointer }
+.app { max-width:760px; min-height:100vh; margin:auto }
+.topbar {
+  position:sticky; top:0; z-index:5; display:flex; align-items:center; gap:10px;
+  padding:12px 15px; background:#fffffffa; border-bottom:1px solid var(--line)
+}
+.brand { font-size:19px; font-weight:800; white-space:nowrap }
+.icon-btn { border:0; background:transparent; font-size:23px; padding:5px; color:var(--text) }
+.search { flex:1 }
+.search input {
+  width:100%; padding:10px 12px; border:1px solid var(--line);
+  border-radius:12px; background:var(--bg); outline:none
+}
+main { min-height:75vh; padding:16px 15px 90px }
+h1 { margin:0; font-size:22px }
+h2 { margin:0 0 12px; font-size:19px }
+h3 { margin:0; font-size:16px }
+.muted { color:var(--muted); font-size:13px }
+.head { display:flex; align-items:center; justify-content:space-between; gap:10px; margin:3px 0 13px }
+.chips { display:flex; gap:8px; overflow:auto; padding:2px 0 12px; scrollbar-width:none }
+.chips::-webkit-scrollbar { display:none }
+.chip { flex:none; border:1px solid var(--line); border-radius:99px; background:#fff; padding:8px 13px; font-size:13px }
+.chip.active { color:#fff; background:var(--purple); border-color:var(--purple) }
+.card { background:#fff; border:1px solid var(--line); border-radius:17px; overflow:hidden }
+.article-list { display:grid; gap:12px }
+.article-card { display:grid; grid-template-columns:115px 1fr; min-height:120px }
+.article-card img { width:100%; height:100%; min-height:120px; object-fit:cover; cursor:pointer }
+.article-copy { min-width:0; padding:11px }
+.article-copy h3 { margin-bottom:5px }
+.excerpt { margin:0; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+.row { display:flex; align-items:center; gap:9px }
+.between { justify-content:space-between }
+.small-btn,.like-btn { border:0; background:transparent; color:var(--purple); padding:5px 0 }
+.like-btn { color:#777 }
+.like-btn.selected { color:#e33c70 }
+.game-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:11px }
+.game-card { padding:13px 9px; text-align:center; cursor:pointer }
+.game-card img { width:66px; height:66px; border-radius:17px; object-fit:cover; margin-bottom:7px }
+.game-card h3 { font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+.product-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:11px }
+.product-card { cursor:pointer }
+.product-card img { display:block; width:100%; aspect-ratio:1; object-fit:cover; background:#eee }
+.product-info { padding:10px }
+.product-info h3 { font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+.price { font-weight:800; margin-top:5px }
+.mrp { color:var(--muted); text-decoration:line-through; font-size:12px; margin-left:6px; font-weight:400 }
+.primary,.secondary { border-radius:12px; padding:10px 14px; font-weight:700 }
+.primary { border:0; color:white; background:var(--purple) }
+.secondary { border:1px solid var(--line); background:white }
+.wide { width:100% }
+.detail-img { width:100%; max-height:390px; object-fit:cover; border-radius:17px; background:#eee }
+.detail-panel { padding:15px; margin-top:12px; background:white; border:1px solid var(--line); border-radius:16px }
+.detail-title { margin:13px 0 5px; font-size:22px }
+.article-text { white-space:pre-wrap; line-height:1.7 }
+.gallery { display:flex; gap:8px; overflow:auto; margin-top:9px }
+.gallery img { flex:none; width:72px; height:72px; object-fit:cover; border-radius:11px; border:2px solid transparent; cursor:pointer }
+.gallery img.active { border-color:var(--purple) }
+.bottom-nav {
+  position:fixed; z-index:6; bottom:0; left:50%; transform:translateX(-50%);
+  width:min(760px,100%); display:grid; grid-template-columns:repeat(4,1fr);
+  padding:7px 5px max(7px,env(safe-area-inset-bottom));
+  background:#fffffffa; border-top:1px solid var(--line)
+}
+.nav-item { display:grid; justify-items:center; gap:1px; border:0; background:none; color:#888; font-size:10px }
+.nav-item span:first-child { font-size:21px }
+.nav-item.active { color:var(--purple); font-weight:750 }
+.banner { padding:17px; margin:14px 0; border-radius:17px; color:white; background:linear-gradient(120deg,#6847ed,#a184ff); cursor:pointer }
+.profile-card { padding:18px; text-align:center }
+.avatar { width:80px; height:80px; border-radius:50%; object-fit:cover; background:#eee }
+.link-list { display:grid; gap:9px; margin-top:14px }
+.link-row { padding:13px; border:1px solid var(--line); border-radius:12px; background:white; cursor:pointer }
+.comment-form { display:flex; gap:8px; margin:14px 0 }
+.comment-form input { flex:1; min-width:0; padding:11px; border:1px solid var(--line); border-radius:12px }
+.comment { padding:13px; margin:9px 0 }
+.comment-actions { display:flex; gap:15px; margin-top:8px }
+.comment-actions button { padding:3px 0; border:0; background:none; color:var(--muted) }
+.comment-actions button.selected { color:var(--purple); font-weight:700 }
+.drawer-backdrop { display:none; position:fixed; inset:0; z-index:10; background:#0006 }
+.drawer-backdrop.open { display:block }
+.drawer { position:absolute; top:0; right:0; bottom:0; width:min(330px,86vw); padding:18px; overflow:auto; background:white }
+.drawer-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:15px }
+.option { display:block; width:100%; padding:11px; margin:5px 0; text-align:left; border:1px solid var(--line); background:white; border-radius:11px }
+.option.active { color:var(--purple); border-color:var(--purple); background:var(--light) }
+.backline { display:flex; align-items:center; gap:8px; margin-bottom:12px }
+.empty,.loading,.error { padding:30px 12px; text-align:center; color:var(--muted) }
+.error { color:#b42332 }
+iframe { width:100%; height:480px; border:0; border-radius:14px; background:#eee }
+@media(min-width:600px) {
+  main { padding-left:22px; padding-right:22px }
+  .article-card { grid-template-columns:155px 1fr }
+  .product-grid { grid-template-columns:repeat(3,minmax(0,1fr)) }
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+  <header class="topbar">
+    <button class="icon-btn" id="menuBtn" aria-label="Open filters">☰</button>
+    <div class="brand">Zacklax</div>
+    <form id="searchForm" class="search">
+      <input id="searchInput" type="search" placeholder="Search…">
+    </form>
+  </header>
+
+  <main id="main"><div class="loading">Firebase se content load ho raha hai…</div></main>
+
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-tab="articles"><span>📰</span><span>Articles</span></button>
+    <button class="nav-item" data-tab="games"><span>🎮</span><span>Games</span></button>
+    <button class="nav-item" data-tab="products"><span>🛍️</span><span>Shopping</span></button>
+    <button class="nav-item" data-tab="profile"><span>👤</span><span>Profile</span></button>
+  </nav>
+</div>
+
+<div class="drawer-backdrop" id="drawerBackdrop">
+  <aside class="drawer">
+    <div class="drawer-head">
+      <h2>Filter</h2>
+      <button class="icon-btn" id="closeDrawer">×</button>
+    </div>
+    <div id="drawerContent"></div>
+  </aside>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+
+<script>
+/* CHANGE 1: Yahan Firebase Console se apna actual config paste karein. */
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+  
+const firebaseConfig = {
+  apiKey: "AIzaSyBkZ_fNR4qUjAue1uHroe_AgEIz_16Yh_8",
+  authDomain: "zacklax-b0f07.firebaseapp.com",
+  projectId: "zacklax-b0f07",
+  storageBucket: "zacklax-b0f07.firebasestorage.app",
+  messagingSenderId: "798982723607",
+  appId: "1:798982723607:web:148442b624c0a0d5112452",
+  measurementId: "G-G495HBFGF3"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const auth = firebase.auth();
+
+const main = document.getElementById("main");
+const state = {
+  tab: "articles",
+  query: "",
+  category: "All",
+  sort: "Latest",
+  detail: null,
+  commentsPage: false,
+  profileName: localStorage.getItem("zacklaxName") || "Zacklax User",
+  articleList: [],
+  gameList: [],
+  productList: [],
+  commentList: [],
+  votes: {}
+};
+
+const esc = value => String(value ?? "").replace(/[&<>"']/g, ch => ({
+  "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
+}[ch]));
+
+function safeUrl(value) {
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" ? url.href : "";
+  } catch {
+    return "";
+  }
+}
+
+function dateValue(value) {
+  if (!value) return 0;
+  if (value.toDate) return value.toDate().getTime();
+  const parsed = new Date(value).getTime();
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function dateText(value) {
+  const time = dateValue(value);
+  return time ? new Date(time).toLocaleDateString("en-IN", {
+    day:"numeric", month:"short", year:"numeric"
+  }) : "";
+}
+
+function itemMatches(item) {
+  return !state.query || JSON.stringify(item).toLowerCase().includes(state.query.toLowerCase());
+}
+
+function visible(items) {
+  return items.filter(item => item.status === "published" && itemMatches(item));
+}
+
+function setTab(tab) {
+  state.tab = tab;
+  state.detail = null;
+  state.commentsPage = false;
+  state.category = "All";
+  state.query = "";
+  document.getElementById("searchInput").value = "";
+  render();
+}
+
+function setRealtimeCollection(name, callback) {
+  db.collection(name).where("status", "==", "published").onSnapshot(
+    snapshot => callback(snapshot.docs.map(doc => ({ id:doc.id, ...doc.data() }))),
+    error => showError("Firestore read error (" + name + "): " + error.message)
+  );
+}
+
+function showError(message) {
+  console.error(message);
+  if (!state.articleList.length && !state.gameList.length && !state.productList.length) {
+    main.innerHTML = `<div class="error">${esc(message)}</div>`;
+  }
+}
+
+/* Firestore se published content realtime load hota hai. */
+setRealtimeCollection("articles", items => { state.articleList = items; render(); });
+setRealtimeCollection("games", items => { state.gameList = items; render(); });
+setRealtimeCollection("products", items => { state.productList = items; render(); });
+
+/* Comments alag collection se realtime load hote hain. */
+db.collection("comments").orderBy("createdAt", "desc").onSnapshot(
+  snapshot => {
+    state.commentList = snapshot.docs.map(doc => ({ id:doc.id, ...doc.data() }));
+    render();
+  },
+  error => console.error("Comments read error:", error)
+);
+
+/* Anonymous Auth comments aur user votes ke liye. */
+const authReady = new Promise((resolve, reject) => {
+  const unsubscribe = auth.onAuthStateChanged(async user => {
+    if (user) {
+      unsubscribe();
+      resolve(user);
+      return;
+    }
+    try {
+      const credential = await auth.signInAnonymously();
+      unsubscribe();
+      resolve(credential.user);
+    } catch (error) {
+      unsubscribe();
+      reject(error);
+    }
+  });
+});
+
+/* Har article/comment ke vote documents se like counts nikalta hai. */
+async function readVoteCounts(path) {
+  try {
+    const snapshot = await path.get();
+    let likes = 0, dislikes = 0;
+    snapshot.forEach(doc => {
+      if (doc.data().choice === "like") likes++;
+      if (doc.data().choice === "dislike") dislikes++;
+    });
+    return { likes, dislikes };
+  } catch (error) {
+    console.error("Vote count error:", error);
+    return { likes:0, dislikes:0 };
+  }
+}
+
+async function voteCount(type, id) {
+  const key = type + ":" + id;
+  if (!state.votes[key]) {
+    const collection = type === "article" ? "likes" : "votes";
+    state.votes[key] = await readVoteCounts(db.collection(
+      type === "article" ? "articles" : "comments"
+    ).doc(id).collection(collection));
+  }
+  return state.votes[key];
+}
+
+async function refreshVote(type, id) {
+  delete state.votes[type + ":" + id];
+  await voteCount(type, id);
+}
+
+async function toggleVote(type, id, choice) {
+  const user = await authReady;
+  const collection = type === "article" ? "likes" : "votes";
+  const parent = type === "article" ? "articles" : "comments";
+  const voteRef = db.collection(parent).doc(id).collection(collection).doc(user.uid);
+  const existing = await voteRef.get();
+
+  if (existing.exists && existing.data().choice === choice) {
+    await voteRef.delete();
+  } else {
+    await voteRef.set({
+      choice,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  }
+  await refreshVote(type, id);
+  render();
+}
+
+/* ---------------- ARTICLES ---------------- */
+function renderArticles() {
+  let list = visible(state.articleList);
+  if (state.category !== "All") list = list.filter(a => a.cat === state.category);
+
+  if (state.sort === "Popular") {
+    list.sort((a,b) => ((b.views || 0) - (a.views || 0)));
+  } else if (state.sort === "Oldest") {
+    list.sort((a,b) => dateValue(a.date) - dateValue(b.date));
+  } else {
+    list.sort((a,b) => dateValue(b.date) - dateValue(a.date));
+  }
+
+  const categories = ["All", ...new Set(state.articleList.map(a => a.cat).filter(Boolean))];
+
+  main.innerHTML = `
+    <div class="head"><h1>Articles</h1><span class="muted">${list.length}</span></div>
+    <div class="chips">${categories.map(cat => `
+      <button class="chip ${state.category === cat ? "active" : ""}" data-category="${esc(cat)}">
+        ${esc(cat)}
+      </button>`).join("")}</div>
+    <div class="article-list">
+      ${list.length ? list.map(a => {
+        const image = safeUrl(a.img);
+        return `<article class="card article-card">
+          ${image ? `<img src="${esc(image)}" alt="" data-open="article" data-id="${esc(a.id)}">` : ""}
+          <div class="article-copy">
+            <h3>${esc(a.title)}</h3>
+            <p class="excerpt">${esc(a.text)}</p>
+            <div class="row between">
+              <button class="small-btn" data-open="article" data-id="${esc(a.id)}">Read more</button>
+              <button class="like-btn" data-vote-type="article" data-id="${esc(a.id)}">♡ <span data-count="article:${esc(a.id)}">…</span></button>
+            </div>
+            <div class="muted">${esc(a.cat)} · ${esc(dateText(a.date))}</div>
+          </div>
+        </article>`;
+      }).join("") : `<div class="empty">Firebase mein published articles nahi mile.</div>`}
+    </div>`;
+  fillVoteCounts("article", list);
+}
+
+/* ---------------- GAMES ---------------- */
+function renderGames() {
+  let list = visible(state.gameList);
+  if (state.category !== "All") list = list.filter(g => g.cat === state.category);
+
+  if (state.sort === "Most played") list.sort((a,b) => (b.plays || 0) - (a.plays || 0));
+  else if (state.sort === "Minimum played") list.sort((a,b) => (a.plays || 0) - (b.plays || 0));
+  else if (state.sort === "Oldest") list.sort((a,b) => dateValue(a.date) - dateValue(b.date));
+  else list.sort((a,b) => dateValue(b.date) - dateValue(a.date));
+
+  const categories = ["All", ...new Set(state.gameList.map(g => g.cat).filter(Boolean))];
+
+  main.innerHTML = `
+    <div class="head"><h1>Games</h1><span class="muted">${list.length}</span></div>
+    <div class="chips">${categories.map(cat => `
+      <button class="chip ${state.category === cat ? "active" : ""}" data-category="${esc(cat)}">${esc(cat)}</button>
+    `).join("")}</div>
+    <div class="game-grid">
+      ${list.length ? list.map(g => {
+        const logo = safeUrl(g.logoUrl);
+        return `<div class="card game-card" data-open="game" data-id="${esc(g.id)}">
+          ${logo ? `<img src="${esc(logo)}" alt="">` : ""}
+          <h3>${esc(g.name)}</h3>
+          <div class="muted">${esc(g.cat || "")}</div>
+        </div>`;
+      }).join("") : `<div class="empty">Firebase mein published games nahi mile.</div>`}
+    </div>`;
+}
+
+/* ---------------- PRODUCTS ---------------- */
+function renderProducts() {
+  let list = visible(state.productList);
+  if (state.category !== "All") list = list.filter(p => p.cat === state.category);
+
+  if (state.sort === "Most clicked") list.sort((a,b) => (b.clicks || 0) - (a.clicks || 0));
+  else if (state.sort === "Minimum clicked") list.sort((a,b) => (a.clicks || 0) - (b.clicks || 0));
+  else if (state.sort === "Oldest") list.sort((a,b) => dateValue(a.date) - dateValue(b.date));
+  else list.sort((a,b) => dateValue(b.date) - dateValue(a.date));
+
+  const categories = ["All", ...new Set(state.productList.map(p => p.cat).filter(Boolean))];
+
+  main.innerHTML = `
+    <div class="head"><h1>Shopping</h1><span class="muted">${list.length}</span></div>
+    <div class="chips">${categories.map(cat => `
+      <button class="chip ${state.category === cat ? "active" : ""}" data-category="${esc(cat)}">${esc(cat)}</button>
+    `).join("")}</div>
+    <div class="product-grid">
+      ${list.length ? list.map(p => {
+        const images = Array.isArray(p.imgs) ? p.imgs : [];
+        const image = safeUrl(images[0] || p.img);
+        return `<div class="card product-card" data-open="product" data-id="${esc(p.id)}">
+          ${image ? `<img src="${esc(image)}" alt="${esc(p.name)}">` : ""}
+          <div class="product-info">
+            <h3>${esc(p.name)}</h3>
+            <div class="price">₹${esc(p.price ?? "")}<span class="mrp">₹${esc(p.mrp ?? "")}</span></div>
+            <div class="muted">${esc(p.cat || "")}</div>
+          </div>
+        </div>`;
+      }).join("") : `<div class="empty">Firebase mein published products nahi mile.</div>`}
+    </div>`;
+}
+
+/* ---------------- PROFILE / COMMENTS ---------------- */
+function renderProfile() {
+  main.innerHTML = `
+    <div class="card profile-card">
+      <div style="font-size:48px">👤</div>
+      <h2 style="margin:8px 0">${esc(state.profileName)}</h2>
+      <button class="secondary" id="editProfile">Naam edit karein</button>
+    </div>
+    <div class="banner" id="openComments">
+      <h2>💬 Comments</h2>
+      <div>Community comments dekhein ya apna comment post karein.</div>
+    </div>
+    <div class="link-list">
+      <div class="link-row" data-info="Privacy Policy">Privacy Policy</div>
+      <div class="link-row" data-info="About Us">About Us</div>
+      <div class="link-row" data-info="Contact">Contact</div>
+    </div>`;
+}
+
+async function renderComments() {
+  let list = [...state.commentList];
+  if (state.sort === "Oldest") list.sort((a,b) => dateValue(a.createdAt) - dateValue(b.createdAt));
+  else if (state.sort === "Most liked") {
+    list.sort((a,b) => ((state.votes["comment:" + b.id]?.likes || 0) -
+                        (state.votes["comment:" + a.id]?.likes || 0)));
+  } else if (state.sort === "Minimum liked") {
+    list.sort((a,b) => ((state.votes["comment:" + a.id]?.likes || 0) -
+                        (state.votes["comment:" + b.id]?.likes || 0)));
+  } else {
+    list.sort((a,b) => dateValue(b.createdAt) - dateValue(a.createdAt));
+  }
+
+  main.innerHTML = `
+    <div class="backline"><button class="icon-btn" id="backProfile">‹</button><h1>Comments</h1></div>
+    <form id="commentForm" class="comment-form">
+      <input id="commentInput" maxlength="300" placeholder="Apna comment likhein…" required>
+      <button class="primary">Post</button>
+    </form>
+    <div class="muted">${list.length} comments</div>
+    ${list.length ? list.map(c => {
+      const count = state.votes["comment:" + c.id] || {likes:0, dislikes:0};
+      return `<div class="card comment">
+        <div class="row between"><strong>${esc(c.name || "User")}</strong><span class="muted">${esc(dateText(c.createdAt))}</span></div>
+        <div style="margin-top:7px;white-space:pre-wrap">${esc(c.text)}</div>
+        <div class="comment-actions">
+          <button data-vote-type="comment" data-choice="like" data-id="${esc(c.id)}">👍 ${count.likes}</button>
+          <button data-vote-type="comment" data-choice="dislike" data-id="${esc(c.id)}">👎 ${count.dislikes}</button>
+        </div>
+      </div>`;
+    }).join("") : `<div class="empty">Abhi koi comment nahi hai.</div>`}`;
+
+  fillVoteCounts("comment", list);
+}
+
+async function fillVoteCounts(type, list) {
+  await Promise.all(list.map(async item => {
+    const counts = await voteCount(type, item.id);
+    const node = document.querySelector(`[data-count="${type}:${CSS.escape(item.id)}"]`);
+    if (node) node.textContent = counts.likes;
+    const comment = document.querySelector(`[data-vote-type="comment"][data-id="${CSS.escape(item.id)}"][data-choice="like"]`);
+    if (comment) comment.textContent = "👍 " + counts.likes;
+    const dislike = document.querySelector(`[data-vote-type="comment"][data-id="${CSS.escape(item.id)}"][data-choice="dislike"]`);
+    if (dislike) dislike.textContent = "👎 " + counts.dislikes;
+  }));
+}
+
+/* ---------------- DETAIL PAGES ---------------- */
+async function renderDetail() {
+  const {type, id} = state.detail || {};
+  const collection = type === "article" ? state.articleList :
+                     type === "game" ? state.gameList : state.productList;
+  const item = collection.find(x => x.id === id);
+  if (!item) {
+    main.innerHTML = `<div class="empty">Yeh item Firestore mein nahi mila.</div>`;
+    return;
+  }
+
+  if (type === "article") {
+    const image = safeUrl(item.img);
+    main.innerHTML = `
+      <div class="backline"><button class="icon-btn" data-back>‹</button><span class="muted">${esc(item.cat || "")} · ${esc(dateText(item.date))}</span></div>
+      ${image ? `<img class="detail-img" src="${esc(image)}" alt="">` : ""}
+      <h1 class="detail-title">${esc(item.title)}</h1>
+      <button class="like-btn" data-vote-type="article" data-id="${esc(item.id)}">♡ <span data-count="article:${esc(item.id)}">…</span> Like</button>
+      <div class="detail-panel article-text">${esc(item.text)}</div>`;
+    fillVoteCounts("article", [item]);
+    return;
+  }
+
+  if (type === "game") {
+    const logo = safeUrl(item.logoUrl);
+    const gameUrl = safeUrl(item.gameUrl);
+    const plays = await getEventCount("games", item.id, "plays");
+
+    main.innerHTML = `
+      <div class="backline"><button class="icon-btn" data-back>‹</button><span class="muted">Game</span></div>
+      <div class="card profile-card">
+        ${logo ? `<img class="avatar" src="${esc(logo)}" alt="">` : ""}
+        <h1 style="margin:10px 0">${esc(item.name)}</h1>
+        <div class="muted">${plays} plays</div>
+      </div>
+      <div class="detail-panel">
+        ${gameUrl
+          ? `<button class="primary wide" id="playGame">▶ Play Game</button><div id="gameFrame" style="margin-top:12px"></div>`
+          : `<div class="error">Is game ka gameUrl Firestore document mein missing ya invalid hai.</div>`}
+      </div>`;
+    return;
+  }
+
+  if (type === "product") {
+    const images = Array.isArray(item.imgs) ? item.imgs.map(safeUrl).filter(Boolean) : [];
+    const selected = images[state.galleryIndex || 0] || safeUrl(item.img);
+    const clicks = await getEventCount("products", item.id, "clicks");
+    const affiliateUrl = safeUrl(item.affiliateUrl);
+
+    main.innerHTML = `
+      <div class="backline"><button class="icon-btn" data-back>‹</button><span class="muted">${esc(item.cat || "")}</span></div>
+      ${selected ? `<img class="detail-img" src="${esc(selected)}" alt="${esc(item.name)}">` : ""}
+      <div class="gallery">${images.map((url,index) =>
+        `<img src="${esc(url)}" class="${index === (state.galleryIndex || 0) ? "active" : ""}" data-gallery="${index}" alt="Product image">`
+      ).join("")}</div>
+      <h1 class="detail-title">${esc(item.name)}</h1>
+      <div class="price" style="font-size:21px">₹${esc(item.price ?? "")}<span class="mrp">₹${esc(item.mrp ?? "")}</span></div>
+      <div class="muted">${clicks} clicks · ${esc(dateText(item.date))}</div>
+      <div class="detail-panel">
+        ${affiliateUrl
+          ? `<button class="primary wide" id="buyProduct">Buy Product</button>`
+          : `<div class="error">Is product ka affiliateUrl Firestore document mein missing ya invalid hai.</div>`}
+      </div>`;
+  }
+}
+
+function getEventCount(collection, id, subcollection) {
+  return db.collection(collection).doc(id).collection(subcollection).get()
+    .then(snapshot => snapshot.size)
+    .catch(error => {
+      console.error("Count read error:", error);
+      return 0;
+    });
+}
+
+function render() {
+  document.querySelectorAll(".nav-item").forEach(button => {
+    button.classList.toggle("active", button.dataset.tab === state.tab);
+  });
+
+  if (state.detail) { renderDetail(); return; }
+  if (state.commentsPage) { renderComments(); return; }
+  if (state.tab === "articles") renderArticles();
+  if (state.tab === "games") renderGames();
+  if (state.tab === "products") renderProducts();
+  if (state.tab === "profile") renderProfile();
+}
+
+/* ---------------- FILTER SIDEBAR ---------------- */
+function openDrawer() {
+  let options;
+  if (state.commentsPage) options = ["Latest","Oldest","Most liked","Minimum liked"];
+  else if (state.tab === "games") options = ["Latest","Most played","Minimum played","Oldest"];
+  else if (state.tab === "products") options = ["Latest","Most clicked","Minimum clicked","Oldest"];
+  else options = ["Latest","Popular","Oldest"];
+
+  const content = document.getElementById("drawerContent");
+  content.innerHTML = `<p class="muted">Sort by</p>` +
+    options.map(option => `<button class="option ${state.sort === option ? "active" : ""}" data-sort="${esc(option)}">${esc(option)}</button>`).join("");
+
+  const source = state.tab === "articles" ? state.articleList :
+                 state.tab === "games" ? state.gameList :
+                 state.tab === "products" ? state.productList : [];
+  const categories = [...new Set(source.map(x => x.cat).filter(Boolean))];
+
+  if (categories.length) {
+    content.innerHTML += `<p class="muted" style="margin-top:17px">Category</p>` +
+      ["All", ...categories].map(cat => `<button class="option ${state.category === cat ? "active" : ""}" data-category="${esc(cat)}">${esc(cat)}</button>`).join("");
+  }
+  document.getElementById("drawerBackdrop").classList.add("open");
+}
+
+function closeDrawer() {
+  document.getElementById("drawerBackdrop").classList.remove("open");
+}
+
+/* ---------------- EVENTS ---------------- */
+document.getElementById("menuBtn").addEventListener("click", openDrawer);
+document.getElementById("closeDrawer").addEventListener("click", closeDrawer);
+
+document.getElementById("drawerBackdrop").addEventListener("click", event => {
+  if (event.target.id === "drawerBackdrop") closeDrawer();
+});
+
+document.querySelectorAll(".nav-item").forEach(button => {
+  button.addEventListener("click", () => setTab(button.dataset.tab));
+});
+
+document.getElementById("searchForm").addEventListener("submit", event => event.preventDefault());
+document.getElementById("searchInput").addEventListener("input", event => {
+  state.query = event.target.value.trim();
+  render();
+});
+
+document.addEventListener("click", async event => {
+  const target = event.target.closest(
+    "button,[data-open],[data-category],[data-sort],[data-info],[data-gallery],#openComments,.game-card"
+  );
+  if (!target) return;
+
+  if (target.dataset.open) {
+    state.detail = {type:target.dataset.open, id:target.dataset.id};
+    state.galleryIndex = 0;
+    render();
+    return;
+  }
+
+  if (target.dataset.category) {
+    state.category = target.dataset.category;
+    closeDrawer();
+    render();
+    return;
+  }
+
+  if (target.dataset.sort) {
+    state.sort = target.dataset.sort;
+    closeDrawer();
+    render();
+    return;
+  }
+
+  if (target.id === "openComments") {
+    state.commentsPage = true;
+    state.sort = "Latest";
+    render();
+    return;
+  }
+
+  if (target.id === "backProfile") {
+    state.commentsPage = false;
+    render();
+    return;
+  }
+
+  if (target.hasAttribute("data-back")) {
+    state.detail = null;
+    render();
+    return;
+  }
+
+  if (target.dataset.gallery !== undefined) {
+    state.galleryIndex = Number(target.dataset.gallery);
+    render();
+    return;
+  }
+
+  if (target.id === "editProfile") {
+    const name = prompt("Apna naam likhein:", state.profileName);
+    if (name && name.trim()) {
+      state.profileName = name.trim();
+      localStorage.setItem("zacklaxName", state.profileName);
+      render();
+    }
+    return;
+  }
+
+  if (target.dataset.info) {
+    alert(target.dataset.info + " page abhi content ke liye tayyar karein.");
+    return;
+  }
+
+  if (target.dataset.voteType) {
+    try {
+      await toggleVote(target.dataset.voteType, target.dataset.id, target.dataset.choice || "like");
+    } catch (error) {
+      alert("Vote save nahi hua: " + error.message);
+    }
+    return;
+  }
+
+  if (target.id === "playGame" && state.detail?.type === "game") {
+    const item = state.gameList.find(x => x.id === state.detail.id);
+    const url = safeUrl(item?.gameUrl);
+    if (!url) return;
+
+    try {
+      const user = await authReady;
+      await db.collection("games").doc(item.id).collection("plays").add({
+        userId:user.uid,
+        createdAt:firebase.firestore.FieldValue.serverTimestamp()
+      });
+    } catch (error) {
+      console.error("Play count save error:", error);
+    }
+
+    document.getElementById("gameFrame").innerHTML =
+      `<iframe src="${esc(url)}" title="${esc(item.name)}" allowfullscreen loading="lazy"></iframe>`;
+    return;
+  }
+
+  if (target.id === "buyProduct" && state.detail?.type === "product") {
+    const item = state.productList.find(x => x.id === state.detail.id);
+    const url = safeUrl(item?.affiliateUrl);
+    if (!url) return;
+
+    try {
+      const user = await authReady;
+      await db.collection("products").doc(item.id).collection("clicks").add({
+        userId:user.uid,
+        createdAt:firebase.firestore.FieldValue.serverTimestamp()
+      });
+    } catch (error) {
+      console.error("Product click save error:", error);
+    }
+    window.open(url, "_blank", "noopener,noreferrer");
+  }
+});
+
+document.addEventListener("submit", async event => {
+  if (event.target.id !== "commentForm") return;
+  event.preventDefault();
+
+  const input = document.getElementById("commentInput");
+  const text = input.value.trim();
+  if (!text) return;
+
+  try {
+    const user = await authReady;
+    await db.collection("comments").add({
+      userId:user.uid,
+      name:state.profileName,
+      text,
+      createdAt:firebase.firestore.FieldValue.serverTimestamp()
+    });
+    input.value = "";
+  } catch (error) {
+    alert("Comment save nahi hua: " + error.message);
+  }
+});
+
+render();
+</script>
+</body>
+</html>
